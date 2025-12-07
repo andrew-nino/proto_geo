@@ -1,0 +1,23 @@
+version: "3"
+
+vars:
+  GREEN: '\033[0;32m'
+  NC: '\033[0m'
+
+silent: true 
+
+tasks:
+  default:
+    desc: "Build and generate proto files"
+    deps: [build]
+
+  build:
+    cmds:
+      - echo -e "{{.GREEN}} Generating proto files... {{.NC}}"
+      - protoc
+        --go_out=./gen/gateway/go
+        --go_opt=paths=source_relative
+        --go-grpc_out=./gen/gateway/go
+        --go-grpc_opt=paths=source_relative
+        -I=proto
+        proto/gateway/gateway.proto
