@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: geosearch.proto
+// source: gateway/gateway.proto
 
 package pb_v1
 
@@ -27,9 +27,14 @@ const (
 // IamClient is the client API for Iam service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Iam service provides authentication and authorization operations
 type IamClient interface {
+	// Register creates a new user account
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	// Login authenticates a user and returns a token
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	// Verify checks if a token is valid
 	Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
 }
 
@@ -74,9 +79,14 @@ func (c *iamClient) Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.
 // IamServer is the server API for Iam service.
 // All implementations must embed UnimplementedIamServer
 // for forward compatibility.
+//
+// Iam service provides authentication and authorization operations
 type IamServer interface {
+	// Register creates a new user account
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	// Login authenticates a user and returns a token
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	// Verify checks if a token is valid
 	Verify(context.Context, *VerifyRequest) (*VerifyResponse, error)
 	mustEmbedUnimplementedIamServer()
 }
@@ -193,5 +203,5 @@ var Iam_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "geosearch.proto",
+	Metadata: "gateway/gateway.proto",
 }

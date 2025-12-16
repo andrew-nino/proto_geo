@@ -15,9 +15,7 @@ tasks:
     cmds:
       - echo -e "{{.GREEN}} Generating proto files... {{.NC}}"
       - protoc
-        --go_out=./gen/gateway/go
-        --go_opt=paths=source_relative
-        --go-grpc_out=./gen/gateway/go
-        --go-grpc_opt=paths=source_relative
+        --go_out=.
+        --go-grpc_out=.
         -I=proto
         proto/gateway/gateway.proto
