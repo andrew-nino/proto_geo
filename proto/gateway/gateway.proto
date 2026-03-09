@@ -12,6 +12,8 @@ service Iam {
   rpc Login(LoginRequest) returns (LoginResponse);
   // Verify checks if a token is valid
   rpc Verify(VerifyRequest) returns (VerifyResponse);
+  // GetPublicKey returns the public key for token verification
+  rpc GetPublicKey(PublicKeyRequest) returns (PublicKeyResponse);
 }
 message RegisterRequest {
   string username = 1;
@@ -38,4 +40,10 @@ message VerifyRequest {
 
 message VerifyResponse {
   bool valid = 1;
+}
+
+message PublicKeyRequest {}
+
+message PublicKeyResponse {
+  string public_key = 1;
 }

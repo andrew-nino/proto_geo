@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Iam_Register_FullMethodName = "/gateway.Iam/Register"
-	Iam_Login_FullMethodName    = "/gateway.Iam/Login"
-	Iam_Verify_FullMethodName   = "/gateway.Iam/Verify"
+	Iam_Register_FullMethodName     = "/gateway.Iam/Register"
+	Iam_Login_FullMethodName        = "/gateway.Iam/Login"
+	Iam_Verify_FullMethodName       = "/gateway.Iam/Verify"
+	Iam_GetPublicKey_FullMethodName = "/gateway.Iam/GetPublicKey"
 )
 
 // IamClient is the client API for Iam service.
@@ -36,6 +37,8 @@ type IamClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// Verify checks if a token is valid
 	Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
+	// GetPublicKey returns the public key for token verification
+	GetPublicKey(ctx context.Context, in *GetPublicKeyRequest, opts ...grpc.CallOption) (*GetPublicKeyResponse, error)
 }
 
 type iamClient struct {
@@ -76,6 +79,16 @@ func (c *iamClient) Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.
 	return out, nil
 }
 
+func (c *iamClient) GetPublicKey(ctx context.Context, in *GetPublicKeyRequest, opts ...grpc.CallOption) (*GetPublicKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPublicKeyResponse)
+	err := c.cc.Invoke(ctx, Iam_GetPublicKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IamServer is the server API for Iam service.
 // All implementations must embed UnimplementedIamServer
 // for forward compatibility.
@@ -88,6 +101,8 @@ type IamServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// Verify checks if a token is valid
 	Verify(context.Context, *VerifyRequest) (*VerifyResponse, error)
+	// GetPublicKey returns the public key for token verification
+	GetPublicKey(context.Context, *GetPublicKeyRequest) (*GetPublicKeyResponse, error)
 	mustEmbedUnimplementedIamServer()
 }
 
@@ -106,6 +121,9 @@ func (UnimplementedIamServer) Login(context.Context, *LoginRequest) (*LoginRespo
 }
 func (UnimplementedIamServer) Verify(context.Context, *VerifyRequest) (*VerifyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Verify not implemented")
+}
+func (UnimplementedIamServer) GetPublicKey(context.Context, *GetPublicKeyRequest) (*GetPublicKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublicKey not implemented")
 }
 func (UnimplementedIamServer) mustEmbedUnimplementedIamServer() {}
 func (UnimplementedIamServer) testEmbeddedByValue()             {}
@@ -182,6 +200,24 @@ func _Iam_Verify_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Iam_GetPublicKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublicKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IamServer).GetPublicKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Iam_GetPublicKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IamServer).GetPublicKey(ctx, req.(*GetPublicKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Iam_ServiceDesc is the grpc.ServiceDesc for Iam service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -200,6 +236,10 @@ var Iam_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Verify",
 			Handler:    _Iam_Verify_Handler,
+		},
+		{
+			MethodName: "GetPublicKey",
+			Handler:    _Iam_GetPublicKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
