@@ -45,5 +45,5 @@ message VerifyResponse {
 message PublicKeyRequest {}
 
 message PublicKeyResponse {
-  string public_key = 1;
+  bytes public_key = 1;
 }

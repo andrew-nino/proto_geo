@@ -38,7 +38,7 @@ type IamClient interface {
 	// Verify checks if a token is valid
 	Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
 	// GetPublicKey returns the public key for token verification
-	GetPublicKey(ctx context.Context, in *GetPublicKeyRequest, opts ...grpc.CallOption) (*GetPublicKeyResponse, error)
+	GetPublicKey(ctx context.Context, in *PublicKeyRequest, opts ...grpc.CallOption) (*PublicKeyResponse, error)
 }
 
 type iamClient struct {
@@ -79,9 +79,9 @@ func (c *iamClient) Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *iamClient) GetPublicKey(ctx context.Context, in *GetPublicKeyRequest, opts ...grpc.CallOption) (*GetPublicKeyResponse, error) {
+func (c *iamClient) GetPublicKey(ctx context.Context, in *PublicKeyRequest, opts ...grpc.CallOption) (*PublicKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetPublicKeyResponse)
+	out := new(PublicKeyResponse)
 	err := c.cc.Invoke(ctx, Iam_GetPublicKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ type IamServer interface {
 	// Verify checks if a token is valid
 	Verify(context.Context, *VerifyRequest) (*VerifyResponse, error)
 	// GetPublicKey returns the public key for token verification
-	GetPublicKey(context.Context, *GetPublicKeyRequest) (*GetPublicKeyResponse, error)
+	GetPublicKey(context.Context, *PublicKeyRequest) (*PublicKeyResponse, error)
 	mustEmbedUnimplementedIamServer()
 }
 
@@ -122,7 +122,7 @@ func (UnimplementedIamServer) Login(context.Context, *LoginRequest) (*LoginRespo
 func (UnimplementedIamServer) Verify(context.Context, *VerifyRequest) (*VerifyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Verify not implemented")
 }
-func (UnimplementedIamServer) GetPublicKey(context.Context, *GetPublicKeyRequest) (*GetPublicKeyResponse, error) {
+func (UnimplementedIamServer) GetPublicKey(context.Context, *PublicKeyRequest) (*PublicKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPublicKey not implemented")
 }
 func (UnimplementedIamServer) mustEmbedUnimplementedIamServer() {}
@@ -201,7 +201,7 @@ func _Iam_Verify_Handler(srv interface{}, ctx context.Context, dec func(interfac
 }
 
 func _Iam_GetPublicKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPublicKeyRequest)
+	in := new(PublicKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func _Iam_GetPublicKey_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: Iam_GetPublicKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IamServer).GetPublicKey(ctx, req.(*GetPublicKeyRequest))
+		return srv.(IamServer).GetPublicKey(ctx, req.(*PublicKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
