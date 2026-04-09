@@ -14,6 +14,8 @@ service Iam {
   rpc Verify(VerifyRequest) returns (VerifyResponse);
   // GetPublicKey returns the public key for token verification
   rpc GetPublicKey(PublicKeyRequest) returns (PublicKeyResponse);
+  // Logout invalidates a user's token
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
 }
 message RegisterRequest {
   string username = 1;
@@ -46,4 +48,12 @@ message PublicKeyRequest {}
 
 message PublicKeyResponse {
   bytes public_key = 1;
+}
+
+message LogoutRequest {
+  string token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
 }

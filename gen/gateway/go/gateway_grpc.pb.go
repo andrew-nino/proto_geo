@@ -23,6 +23,7 @@ const (
 	Iam_Login_FullMethodName        = "/gateway.Iam/Login"
 	Iam_Verify_FullMethodName       = "/gateway.Iam/Verify"
 	Iam_GetPublicKey_FullMethodName = "/gateway.Iam/GetPublicKey"
+	Iam_Logout_FullMethodName       = "/gateway.Iam/Logout"
 )
 
 // IamClient is the client API for Iam service.
@@ -39,6 +40,8 @@ type IamClient interface {
 	Verify(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
 	// GetPublicKey returns the public key for token verification
 	GetPublicKey(ctx context.Context, in *PublicKeyRequest, opts ...grpc.CallOption) (*PublicKeyResponse, error)
+	// Logout invalidates a user's token
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 }
 
 type iamClient struct {
@@ -89,6 +92,16 @@ func (c *iamClient) GetPublicKey(ctx context.Context, in *PublicKeyRequest, opts
 	return out, nil
 }
 
+func (c *iamClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogoutResponse)
+	err := c.cc.Invoke(ctx, Iam_Logout_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IamServer is the server API for Iam service.
 // All implementations must embed UnimplementedIamServer
 // for forward compatibility.
@@ -103,6 +116,8 @@ type IamServer interface {
 	Verify(context.Context, *VerifyRequest) (*VerifyResponse, error)
 	// GetPublicKey returns the public key for token verification
 	GetPublicKey(context.Context, *PublicKeyRequest) (*PublicKeyResponse, error)
+	// Logout invalidates a user's token
+	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	mustEmbedUnimplementedIamServer()
 }
 
@@ -124,6 +139,9 @@ func (UnimplementedIamServer) Verify(context.Context, *VerifyRequest) (*VerifyRe
 }
 func (UnimplementedIamServer) GetPublicKey(context.Context, *PublicKeyRequest) (*PublicKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPublicKey not implemented")
+}
+func (UnimplementedIamServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedIamServer) mustEmbedUnimplementedIamServer() {}
 func (UnimplementedIamServer) testEmbeddedByValue()             {}
@@ -218,6 +236,24 @@ func _Iam_GetPublicKey_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Iam_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IamServer).Logout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Iam_Logout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IamServer).Logout(ctx, req.(*LogoutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Iam_ServiceDesc is the grpc.ServiceDesc for Iam service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +276,10 @@ var Iam_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPublicKey",
 			Handler:    _Iam_GetPublicKey_Handler,
+		},
+		{
+			MethodName: "Logout",
+			Handler:    _Iam_Logout_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
