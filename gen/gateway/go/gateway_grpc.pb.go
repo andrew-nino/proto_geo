@@ -24,6 +24,7 @@ const (
 	Iam_Verify_FullMethodName       = "/gateway.Iam/Verify"
 	Iam_GetPublicKey_FullMethodName = "/gateway.Iam/GetPublicKey"
 	Iam_Logout_FullMethodName       = "/gateway.Iam/Logout"
+	Iam_RefreshToken_FullMethodName = "/gateway.Iam/RefreshToken"
 )
 
 // IamClient is the client API for Iam service.
@@ -42,6 +43,8 @@ type IamClient interface {
 	GetPublicKey(ctx context.Context, in *PublicKeyRequest, opts ...grpc.CallOption) (*PublicKeyResponse, error)
 	// Logout invalidates a user's token
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
+	// RefreshToken generates a new token for an authenticated user
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 }
 
 type iamClient struct {
@@ -102,6 +105,16 @@ func (c *iamClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.
 	return out, nil
 }
 
+func (c *iamClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RefreshTokenResponse)
+	err := c.cc.Invoke(ctx, Iam_RefreshToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IamServer is the server API for Iam service.
 // All implementations must embed UnimplementedIamServer
 // for forward compatibility.
@@ -118,6 +131,8 @@ type IamServer interface {
 	GetPublicKey(context.Context, *PublicKeyRequest) (*PublicKeyResponse, error)
 	// Logout invalidates a user's token
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
+	// RefreshToken generates a new token for an authenticated user
+	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	mustEmbedUnimplementedIamServer()
 }
 
@@ -142,6 +157,9 @@ func (UnimplementedIamServer) GetPublicKey(context.Context, *PublicKeyRequest) (
 }
 func (UnimplementedIamServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
+}
+func (UnimplementedIamServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedIamServer) mustEmbedUnimplementedIamServer() {}
 func (UnimplementedIamServer) testEmbeddedByValue()             {}
@@ -254,6 +272,24 @@ func _Iam_Logout_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Iam_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefreshTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IamServer).RefreshToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Iam_RefreshToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IamServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Iam_ServiceDesc is the grpc.ServiceDesc for Iam service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -280,6 +316,10 @@ var Iam_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Logout",
 			Handler:    _Iam_Logout_Handler,
+		},
+		{
+			MethodName: "RefreshToken",
+			Handler:    _Iam_RefreshToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

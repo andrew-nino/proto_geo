@@ -16,7 +16,10 @@ service Iam {
   rpc GetPublicKey(PublicKeyRequest) returns (PublicKeyResponse);
   // Logout invalidates a user's token
   rpc Logout(LogoutRequest) returns (LogoutResponse);
+  // RefreshToken generates a new token for an authenticated user
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
 }
+
 message RegisterRequest {
   string username = 1;
   string password = 2;
@@ -56,4 +59,13 @@ message LogoutRequest {
 
 message LogoutResponse {
   bool success = 1;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
 }
